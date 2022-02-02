@@ -9,6 +9,10 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -26,9 +30,20 @@ import com.loopj.android.http.RequestParams;
 
 import org.json.JSONObject;
 
+import java.util.Random;
+
 import cz.msebera.android.httpclient.Header;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
+
+    private SensorManager sensorManager;
+    private Sensor accelerometerSensor;
+    private boolean isAccelerometerSensorAvailable, itIsNotFirstTime = false;
+    private float currentX, currentY,currentZ, lastX, lastY, lastZ;
+    private float xDifference,yDifference,zDifference;
+    private float shakeThreshold = 3f;
+    private String[] rndCities ={"Tokyo", "Delhi", "Shanghai","Sao Paulo", "Mexico City", "Cairo", "Dhaka", "Dhaka", "Beijing", "Osaka"};
+    Random rand = new Random();
 
     final String APP_ID = "f2454f85b464942aacdc07c9c8a3c9a6";
     final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
@@ -66,6 +81,51 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
+        if(sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)!=null)
+        {
+            accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            isAccelerometerSensorAvailable = true;
+        }
+        else
+        {
+            isAccelerometerSensorAvailable = false;
+        }
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event)
+    {
+        currentX = event.values[0];
+        currentY = event.values[1];
+        currentZ = event.values[2];
+
+        if(itIsNotFirstTime)
+        {
+            xDifference = Math.abs(lastX - currentX);
+            yDifference = Math.abs(lastY - currentY);
+            zDifference = Math.abs(lastZ - currentZ);
+
+            if((xDifference > shakeThreshold && yDifference > shakeThreshold) ||
+                    (xDifference > shakeThreshold && zDifference > shakeThreshold) ||
+                    (yDifference > shakeThreshold && zDifference > shakeThreshold))
+            {
+                int n = rand.nextInt(11);
+                Toast.makeText(MainActivity.this, "Shake gesture", Toast.LENGTH_SHORT).show();
+                getWeatherForNewCity(rndCities[n]);
+            }
+        }
+
+        lastX = currentX;
+        lastY = currentY;
+        lastZ = currentZ;
+        itIsNotFirstTime = true;
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 
     /*@RequiresApi(api = Build.VERSION_CODES.S)
@@ -89,6 +149,11 @@ public class MainActivity extends AppCompatActivity {
         else
         {
             getWeatherForCurrentLocation();
+        }
+
+        if(isAccelerometerSensorAvailable)
+        {
+            sensorManager.registerListener(this,accelerometerSensor,SensorManager.SENSOR_DELAY_NORMAL);
         }
     }
 
@@ -208,5 +273,11 @@ public class MainActivity extends AppCompatActivity {
         {
             mLocationManager.removeUpdates(mLocationListener);
         }
+
+        if(isAccelerometerSensorAvailable)
+        {
+            sensorManager.unregisterListener(this);
+        }
     }
+
 }
