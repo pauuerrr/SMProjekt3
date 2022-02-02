@@ -10,8 +10,8 @@
     <ImageView
         android:id="@+id/weatherIcon"
         android:layout_width="match_parent"
-        android:layout_height="170dp"
-        android:layout_marginTop="60dp"
+        android:layout_height="242dp"
+        android:layout_marginTop="100dp"
         android:src="@drawable/finding"></ImageView>
 
     <LinearLayout
@@ -66,7 +66,7 @@
         android:layout_alignParentBottom="true"
         android:id="@+id/cityFinder"
         android:background="@drawable/buttondesign"
-        android:layout_marginBottom="30dp">
+        android:layout_marginBottom="100dp">
 
         <TextView
             android:layout_width="wrap_content"
