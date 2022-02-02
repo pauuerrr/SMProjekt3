@@ -32,21 +32,21 @@ public class weatherData {
 
    private static String updateWeatherIcon(int condition)
    {
-       if(condition>=0 && condition<=300)
+       if(condition>=0 && condition<=299)
        {
            return "thunderstorm1";
        }
-       else if(condition>=301 && condition<=500)
+       else if(condition>=300 && condition<=499)
        {
            return "lightrain";
        }
-       else if(condition>=501 && condition<=600)
+       else if(condition>=500 && condition<=599)
        {
-           return "shower";
+           return "lightrain";
        }
-       else if(condition>=601 && condition<=700)
+       else if(condition>=600 && condition<=700)
        {
-           return "snow2";
+           return "snow1";
        }
        else if(condition>=701 && condition<=771)
        {
@@ -70,7 +70,7 @@ public class weatherData {
        }
        else if(condition==903)
        {
-           return "snow1";
+           return "snow2";
        }
        else if(condition==904)
        {
